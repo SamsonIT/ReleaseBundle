@@ -1,0 +1,9 @@
+{
+    "name": "samson/release-bundle",
+    "autoload": {
+        "psr-0": {
+            "Samson\\Bundle\\ReleaseBundle": ""
+        }
+    },
+    "target-dir": "Samson/Bundle/ReleaseBundle"
+}
