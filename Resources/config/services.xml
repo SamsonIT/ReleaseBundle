@@ -4,8 +4,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="samson_release.version_determiner.class">Samson\Bundle\ReleaseBundle\Version\GitVersionDeterminer</parameter>
+    </parameters>
+    
 	<services>
         <service id="samson_release.prepare_release" class="Samson\Bundle\ReleaseBundle\PrepareRelease\PrepareRelease" />
+        
+        <service id="samson_release.version_determiner" class="%samson_release.version_determiner.class%" />
 	</services>
 
 </container>
