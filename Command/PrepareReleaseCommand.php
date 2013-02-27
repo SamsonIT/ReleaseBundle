@@ -17,7 +17,7 @@ class PrepareReleaseCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('samson:preparerelease')
+            ->setName('samson:release:prepare')->setAliases(array('samson:preparerelease'))
             ->addOption('target', 't', InputOption::VALUE_OPTIONAL, 'Where should we put the prepared source?')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
