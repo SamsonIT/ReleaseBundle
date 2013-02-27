@@ -35,6 +35,8 @@ class PrepareReleaseCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $determiner = $this->getContainer()->get('samson_release.version_determiner');
+
         if (!$input->getOption('force')) {
             $builder = new \Symfony\Component\Process\ProcessBuilder(array('git', 'status', '-s'));
             $process = $builder->getProcess();
@@ -44,10 +46,11 @@ class PrepareReleaseCommand extends ContainerAwareCommand
                 throw new \RuntimeException('The working tree has uncommitted changes!');
             }
 
-            $tag = $this->getTag();
+            $tag = $determiner->getCurrentTag();
+
             file_put_contents($this->getContainer()->getParameter('kernel.root_dir').'/version.txt', $tag);
         } else {
-            $tag = 'dev';
+            $tag = $determiner->determineVersion();
         }
 
         $dialog = $this->getHelperSet()->get('dialog');
@@ -62,23 +65,5 @@ class PrepareReleaseCommand extends ContainerAwareCommand
 
         $fs = new Filesystem;
         $fs->remove($this->getContainer()->getParameter('kernel.root_dir').'/version.txt');
-    }
-
-    private function getTag()
-    {
-        $builder = new \Symfony\Component\Process\ProcessBuilder(array('git', 'tag', '--contains', 'HEAD'));
-        $process = $builder->getProcess();
-        $process->run();
-
-        $tag = $process->getOutput();
-        if (!strlen($tag)) {
-            throw new \RuntimeException('The current commit is not tagged!');
-        }
-        $tags = preg_split('/\n|\r\n|\r/', trim($tag));
-
-        if (count($tags) > 1) {
-            throw new \RuntimeException('The current commit has multiple tags!');
-        }
-        return $tags[0];
     }
 }
