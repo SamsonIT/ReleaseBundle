@@ -18,6 +18,7 @@ class PrepareReleaseCommand extends ContainerAwareCommand
     {
         $this
             ->setName('samson:release:prepare')->setAliases(array('samson:preparerelease'))
+            ->addArgument('instance', \Symfony\Component\Console\Input\InputArgument::REQUIRED, 'The parameters.yml file to use')
             ->addOption('target', 't', InputOption::VALUE_OPTIONAL, 'Where should we put the prepared source?')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
@@ -61,7 +62,7 @@ class PrepareReleaseCommand extends ContainerAwareCommand
 
         $prepareRelease = $this->getContainer()->get('samson_release.prepare_release');
         $prepareRelease->setOutput($output);
-        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir').'/..', $target);
+        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir').'/..', $target, $input->getArgument('instance'));
 
         $fs = new Filesystem;
         $fs->remove($this->getContainer()->getParameter('kernel.root_dir').'/version.txt');
