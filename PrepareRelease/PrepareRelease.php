@@ -33,6 +33,7 @@ class PrepareRelease
             ->exclude("app/cache")
             ->notPath('app/config/parameters.yml')
             ->notPath('app/config/instance')
+            ->notPath('reports')
             ->exclude(".settings")
             ->exclude("app/logs")
             ->exclude("web/bundles")
