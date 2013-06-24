@@ -7,6 +7,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @author Bart van den Burg <bart@samson-it.nl>
@@ -37,6 +39,29 @@ class PrepareReleaseCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $instance = $input->getArgument('instance', null);
+        if (null === $instance) {
+            $finder = Finder::create()
+                ->in($this->getContainer()->getParameter('kernel.root_dir').'/config/instance')
+                ->name('/parameters\..*?\.yml/')
+            ;
+
+            if (count($finder)) {
+                $instances = array_values(array_map(function(SplFileInfo $file) {
+                    return substr($file->getFilename(), 11, strlen($file->getFilename()) - 4 - 11);
+                }, iterator_to_array($finder)));
+                array_unshift($instances, 'no');
+
+                /* @var $helper \Symfony\Component\Console\Helper\DialogHelper */
+                $helper = $this->getHelper('dialog');
+                $answer = $helper->select($output, 'Include an instance parameters.yml file? (default: no)', $instances, 0);
+
+                if ($answer > 0) {
+                    $instance = $instances[$answer];
+                }
+            }
+
+        }
+
         if (null === $instance) {
             $output->writeln('<comment>Warning: no instance file supplied. The package will not contain a parameters.yml file!</comment>');
         }
