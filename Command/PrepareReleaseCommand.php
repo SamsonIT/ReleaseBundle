@@ -73,7 +73,7 @@ class PrepareReleaseCommand extends ContainerAwareCommand
             $process->run();
 
             if (strlen($process->getOutput())) {
-                throw new \RuntimeException('The working tree has uncommitted changes!');
+                throw new \RuntimeException("The working tree has uncommitted changes!. Report:\n".$process->getOutput());
             }
 
             $tag = $determiner->getCurrentTag();
