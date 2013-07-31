@@ -20,17 +20,8 @@ class GitVersionDeterminer implements VersionDeterminerInterface
             return $tag;
         }
 
-        $currentBranch = $this->getCurrentBranch();
-
-        if (!preg_match('/^\d+\.\d+$/', $currentBranch)) {
-            return 'dev-'.$currentBranch;
-        }
-
         $latestTag = $this->getLatestTag();
 
-        if (0 !== strpos($latestTag, $currentBranch)) {
-            return $currentBranch.'.0-dev';
-        }
         $tagParts = explode(".", $latestTag);
         $tagParts[count($tagParts) - 1]++;
         return implode(".", $tagParts).'-dev';
@@ -62,12 +53,5 @@ class GitVersionDeterminer implements VersionDeterminerInterface
         }
         
         return $latestTag;
-    }
-
-    private function getCurrentBranch()
-    {
-        $p = \Symfony\Component\Process\ProcessBuilder::create(array($this->git, 'rev-parse', '--abbrev-ref', 'HEAD'))->getProcess();
-        $p->run();
-        return trim($p->getOutput());
     }
 }
