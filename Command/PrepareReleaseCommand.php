@@ -42,12 +42,12 @@ class PrepareReleaseCommand extends ContainerAwareCommand
         if (null === $instance) {
             $finder = Finder::create()
                 ->in($this->getContainer()->getParameter('kernel.root_dir').'/config/instance')
-                ->name('/parameters\..*?\.yml/')
+                ->name('/.*?\.yml/')
             ;
 
             if (count($finder)) {
                 $instances = array_values(array_map(function(SplFileInfo $file) {
-                    return substr($file->getFilename(), 11, strlen($file->getFilename()) - 4 - 11);
+                    return $file->getFilename();
                 }, iterator_to_array($finder)));
                 array_unshift($instances, 'no');
 
