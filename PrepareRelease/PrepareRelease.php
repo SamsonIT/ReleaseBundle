@@ -90,7 +90,7 @@ class PrepareRelease
             }
 
             if (null !== $instance) {
-                $instanceFile = "app/config/instance/parameters.".$instance.".yml";
+                $instanceFile = "app/config/instance/".$instance;
                 $this->output->writeln('Adding instance parameters.yml file: '.$instanceFile);
                 $parts = array('tar', 'rf', $targetTar, $instanceFile);
                 $builder = new \Symfony\Component\Process\ProcessBuilder($parts);
