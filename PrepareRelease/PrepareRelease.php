@@ -46,6 +46,7 @@ class PrepareRelease
             ->notPath("/vendor\/.*?\/tests\//")
             ->notPath("/vendor\/.*?\/test-suite\//")
             ->exclude("nbproject")
+            ->exclude("builds")
             ->notName("app_dev.php")
             ->notName(".buildpath")
             ->notName(".project")
