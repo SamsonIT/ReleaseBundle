@@ -72,6 +72,11 @@ class PrepareRelease
             foreach ($finder as $file) {
                 $this->copyfile($file->getRelativePathname(), $target.'/'.$file->getRelativePathname());
             }
+            if (null !== $instance) {
+                $instanceFile = "app/config/instance/".$instance;
+                $this->output->writeln('Adding instance parameters.yml file: '.$instanceFile);
+                $this->copyfile($instanceFile, $target.'/app/config/parameters.yml');
+            }
         } else {
             $targetTar = preg_replace('/\.gz$/', '', $target);
 
