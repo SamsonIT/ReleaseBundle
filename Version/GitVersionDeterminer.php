@@ -38,7 +38,7 @@ class GitVersionDeterminer implements VersionDeterminerInterface
         if (!strlen($tag)) {
             return null;
         }
-        
+
         return $tag;
     }
 
@@ -51,7 +51,7 @@ class GitVersionDeterminer implements VersionDeterminerInterface
         if (!strlen($latestTag)) {
             return null;
         }
-        
+
         return $latestTag;
     }
 }

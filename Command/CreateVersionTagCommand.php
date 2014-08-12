@@ -34,7 +34,7 @@ class CreateVersionTagCommand extends ContainerAwareCommand
         if (count($m) < 3 || 'dev' !== $m[2]) {
             throw new \RuntimeException("We appear not to be on a dev version...");
         }
-        
+
         $nextVersionParts = explode(".", $m[1]);
         switch($input->getArgument('level')) {
             case 'micro':
