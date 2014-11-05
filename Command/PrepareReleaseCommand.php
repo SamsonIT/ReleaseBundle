@@ -2,6 +2,7 @@
 
 namespace Samson\Bundle\ReleaseBundle\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,20 +21,19 @@ class PrepareReleaseCommand extends ContainerAwareCommand
     {
         $this
             ->setName('samson:release:prepare')->setAliases(array('samson:preparerelease'))
+            ->addArgument('appname', InputArgument::REQUIRED, 'The name of your application')
             ->addArgument('instance', \Symfony\Component\Console\Input\InputArgument::OPTIONAL, 'The parameters.yml file to use')
             ->addOption('target', 't', InputOption::VALUE_OPTIONAL, 'Where should we put the prepared source?')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
             ->addOption('skip-vendors', null, InputOption::VALUE_NONE, 'Don\'t include vendors')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Ignore git errors')
-        ;
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Ignore git errors');
     }
 
-    private function determineDefaultSource($tag)
+    private function determineDefaultSource($tag, $appname)
     {
         $dir = sys_get_temp_dir();
-        $appData = $this->getContainer()->getParameter('samson_core.app');
 
-        return $dir.DIRECTORY_SEPARATOR.preg_replace('/\W/', '_', $appData['name']).'_'.$tag;
+        return $dir . DIRECTORY_SEPARATOR . preg_replace('/\W/', '_', $appname) . '_' . $tag;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -41,12 +41,11 @@ class PrepareReleaseCommand extends ContainerAwareCommand
         $instance = $input->getArgument('instance', null);
         if (null === $instance) {
             $finder = Finder::create()
-                ->in($this->getContainer()->getParameter('kernel.root_dir').'/config/instance')
-                ->name('/.*?\.yml/')
-            ;
+                ->in($this->getContainer()->getParameter('kernel.root_dir') . '/config/instance')
+                ->name('/.*?\.yml/');
 
             if (count($finder)) {
-                $instances = array_values(array_map(function(SplFileInfo $file) {
+                $instances = array_values(array_map(function (SplFileInfo $file) {
                     return $file->getFilename();
                 }, iterator_to_array($finder)));
                 array_unshift($instances, 'no');
@@ -73,12 +72,12 @@ class PrepareReleaseCommand extends ContainerAwareCommand
             $process->run();
 
             if (strlen($process->getOutput())) {
-                throw new \RuntimeException("The working tree has uncommitted changes!. Report:\n".$process->getOutput());
+                throw new \RuntimeException("The working tree has uncommitted changes!. Report:\n" . $process->getOutput());
             }
 
             $tag = $determiner->getCurrentTag();
 
-            file_put_contents($this->getContainer()->getParameter('kernel.root_dir').'/version.txt', $tag);
+            file_put_contents($this->getContainer()->getParameter('kernel.root_dir') . '/version.txt', $tag);
         } else {
             $tag = $determiner->determineVersion();
         }
@@ -86,19 +85,19 @@ class PrepareReleaseCommand extends ContainerAwareCommand
         $dialog = $this->getHelperSet()->get('dialog');
 
         if (null === ($target = $input->getOption('target'))) {
-            $target = $this->determineDefaultSource($tag);
+            $target = $this->determineDefaultSource($tag, $input->getArgument('appname'));
             if (null !== $instance) {
-                $target .= '-'.$instance;
+                $target .= '-' . $instance;
             }
             $target .= '.tar.gz';
-            $target = $dialog->ask($output, 'Where should we put the prepared source? ['.$target.']', $target);
+            $target = $dialog->ask($output, 'Where should we put the prepared source? [' . $target . ']', $target);
         }
 
         $prepareRelease = $this->getContainer()->get('samson_release.prepare_release');
         $prepareRelease->setOutput($output);
-        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir').'/..', $target, $instance);
+        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir') . '/..', $target, $instance);
 
         $fs = new Filesystem;
-        $fs->remove($this->getContainer()->getParameter('kernel.root_dir').'/version.txt');
+        $fs->remove($this->getContainer()->getParameter('kernel.root_dir') . '/version.txt');
     }
 }
