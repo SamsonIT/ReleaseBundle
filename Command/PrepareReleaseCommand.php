@@ -56,18 +56,16 @@ class PrepareReleaseCommand extends ContainerAwareCommand
 
         if (null === ($target = $input->getOption('target'))) {
             $target = $this->determineDefaultSource($tag, $input->getArgument('appname'));
-            if (null !== $instance) {
-                $target .= '-' . $instance;
-            }
             $target .= '.tar.gz';
             $target = $dialog->ask($output, 'Where should we put the prepared source? [' . $target . ']', $target);
         }
 
         $prepareRelease = $this->getContainer()->get('samson_release.prepare_release');
         $prepareRelease->setOutput($output);
-        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir') . '/..', $target, $instance);
+        $prepareRelease->preparerelease($this->getContainer()->getParameter('kernel.root_dir') . '/..', $target);
 
         $fs = new Filesystem();
         $fs->remove($this->getContainer()->getParameter('kernel.root_dir') . '/version.txt');
     }
 }
+

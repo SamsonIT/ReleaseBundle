@@ -24,7 +24,7 @@ class PrepareRelease
         $this->output = $output;
     }
 
-    public function prepareRelease($source, $target, $instance)
+    public function prepareRelease($source, $target)
     {
         $finder = new Finder();
 
@@ -32,7 +32,6 @@ class PrepareRelease
             ->depth('>= 1')
             ->exclude("app/cache")
             ->notPath('app/config/parameters.yml')
-            ->exclude('app/config/instance')
             ->exclude('reports')
             ->exclude(".settings")
             ->exclude("app/logs")
@@ -72,11 +71,6 @@ class PrepareRelease
             foreach ($finder as $file) {
                 $this->copyfile($file->getRelativePathname(), $target.'/'.$file->getRelativePathname());
             }
-            if (null !== $instance) {
-                $instanceFile = "app/config/instance/".$instance;
-                $this->output->writeln('Adding instance parameters.yml file: '.$instanceFile);
-                $this->copyfile($instanceFile, $target.'/app/config/parameters.yml');
-            }
         } else {
             $targetTar = preg_replace('/\.gz$/', '', $target);
 
@@ -93,20 +87,6 @@ class PrepareRelease
 
             if (strlen($process->getErrorOutput())) {
                 throw new \RuntimeException('Couldn\'t create tar archive: '.$process->getErrorOutput());
-            }
-
-            if (null !== $instance) {
-                $instanceFile = "app/config/instance/".$instance;
-                $this->output->writeln('Adding instance parameters.yml file: '.$instanceFile);
-                $parts = array('tar', 'rf', $targetTar, $instanceFile);
-                $builder = new \Symfony\Component\Process\ProcessBuilder($parts);
-                $process = $builder->getProcess();
-                $process->setCommandLine($process->getCommandLine()." --transform='s,".preg_quote($instanceFile, ",").",app/config/parameters.yml,'");
-                $process->run();
-
-                if (strlen($process->getErrorOutput())) {
-                    throw new \RuntimeException('Couldn\'t append parameters.yml: '.$process->getErrorOutput());
-                }
             }
 
             $this->output->writeln('Creating tar.gz archive');
@@ -143,3 +123,4 @@ class PrepareRelease
         copy($from, $to);
     }
 }
+
