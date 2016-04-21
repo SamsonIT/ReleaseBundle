@@ -50,6 +50,7 @@ class PrepareReleaseCommand extends ContainerAwareCommand
                     return $file->getFilename();
                 }, iterator_to_array($finder)));
                 array_unshift($instances, 'no');
+                sort($instances);
 
                 /* @var $helper \Symfony\Component\Console\Helper\DialogHelper */
                 $helper = $this->getHelper('dialog');
